@@ -48,9 +48,11 @@ module.exports.postParkingSpot = async (req, res, next) => {
     parkingSpot.latitude = req.body.latitude;
     parkingSpot.longitude = req.body.longitude;
     parkingSpot.floorName = req.body.floorName;
+    parkingSpot.spotNumber = req.body.spotNumber;
     parkingSpot.allowedTime = req.body.allowedTime;
     parkingSpot.isSpotVacant = req.body.isSpotVacant;
-    parkingSpot.parkingArea = '5dd4b8899fe3d16fe08a5241';
+    parkingSpot.parkingArea = '5de10e6eb7fe536768db63ca';
+    // console.log(parkingSpot)
     await parkingSpot.save((err, docs) => {
         if (!err) {
             res.send(docs);
@@ -59,7 +61,7 @@ module.exports.postParkingSpot = async (req, res, next) => {
             return next(err);
         }
     });
-    const parkingArea = await ParkingArea.findById('5dd4b8899fe3d16fe08a5241');
+    const parkingArea = await ParkingArea.findById('5de10e6eb7fe536768db63ca');
     parkingArea.parkingSpots.push(parkingSpot);
     await parkingArea.save();
 }
@@ -69,6 +71,7 @@ module.exports.updateParkingSpot = (req, res, next) => {
     var updatedParkingSpot = {
         latitude: req.body.latitude,
         longitude: req.body.longitude,
+        spotNumber: req.body.spotNumber,  
         floorName: req.body.floorName,
         isSpotVacant: req.body.isSpotVacant,
         allowedTime: req.body.allowedTime

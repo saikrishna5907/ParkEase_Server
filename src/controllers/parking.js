@@ -1,16 +1,35 @@
 const ObjectId = require('mongoose').Types.ObjectId;
 import Parking from '../models/parking';
-import Student from '../models/student';
+import User from '../models/user';
 module.exports.getCurrentParkings = (req, res, next) => {
     Parking.find((err, docs) => {
-        if (err)
-            return res.status(404).json({ status: false, message: 'Parking Status not found' });
-        else
+        if (!err)
             return res.status(200).json(docs);
+        else {
+            console.log(err)
+            return res.status(404).json({ status: false, message: 'No Records of Parking Status found.' });
+        }
     })
-    .populate('vehicleOwnedBy')
-    .populate('parkingSpot')
-    .exec();
+        .populate([
+            {
+                path: 'vehicleOwnedBy',
+                model: 'User',
+                select: 'firstName lastName email vehicleId phone'
+            }
+        ])
+        .populate([
+            {
+                path: 'parkingSpot',
+                model: 'ParkingSpot',
+                populate: {
+                    path: 'parkingArea',
+                    model: 'ParkingArea',
+                    select: 'latitude longitude name noOfFloors'
+                }
+
+            }
+        ])
+
 }
 module.exports.getSingleParking = (req, res, next) => {
     if (ObjectId.isValid(req.params.id)) {
@@ -27,18 +46,39 @@ module.exports.getSingleParking = (req, res, next) => {
 module.exports.getParkingByREGO = (req, res, next) => {
     let lowerCaseRegoValue = req.params.rego.toLowerCase();
     Parking.find({ 'parkedVehicleRego': lowerCaseRegoValue }, (err, doc) => {
-        if (!err)
+        if (!err) {
             return res.status(200).json(doc);
+        }
         else
             return res.status(404).json({ status: false, message: `Parking Status with registration number: ${req.params.rego} not found` });
-    });
-}
+    })
+        .populate([
+            {
+                path: 'vehicleOwnedBy',
+                model: 'User',
+                select: 'firstName lastName email vehicleId phone'
+            }
+        ])
+        .populate([
+            {
+                path: 'parkingSpot',
+                model: 'ParkingSpot',
+                populate: {
+                    path: 'parkingArea',
+                    model: 'ParkingArea',
+                    select: 'latitude longitude name noOfFloors'
+                }
 
+            }
+        ])
+
+
+}
 
 module.exports.postParking = async (req, res, next) => {
     const lowerCaseREGOValue = req.body.parkedVehicleRego.toLowerCase();
-    //find student with the vehicle rego recognized by image processing
-    const student = await Student.findOne({ vehicleId: lowerCaseREGOValue });
+    //find user with the vehicle rego recognized by image processing
+    const user = await User.findOne({ vehicleId: lowerCaseREGOValue });
     // let recordFound;
     // let duplicateRecordDataId= '';
     // ParkingStatusOfSpots.find({'parkedVehicleRego': lowerCaseRegoValue}, (err,doc) => {
@@ -57,9 +97,9 @@ module.exports.postParking = async (req, res, next) => {
     // if(recordFound === false){
     //     console.log('falseee')
     let parking = await new Parking({
-        parkingSpot: '5dd4bf1eeaf8084074481e04',
-        vehicleOwnedBy: student,
-        parkedVehicleRego : lowerCaseREGOValue
+        parkingSpot: '5de73a2fc75f0c242093f264',
+        vehicleOwnedBy: user,
+        parkedVehicleRego: lowerCaseREGOValue
     });
 
     await parking.save((err, docs) => {
@@ -102,7 +142,7 @@ module.exports.updateParking = (req, res, next) => {
         startTimeOfParking: req.body.startTimeOfParking
     };
 
-    ParkingStatusOfSpots.findByIdAndUpdate(req.params.id, { $set: updatedParkingStautsOfASpot }, { new: true }, (err, doc) => {
+    Parking.findByIdAndUpdate(req.params.id, { $set: updatedParkingStautsOfASpot }, { new: true }, (err, doc) => {
         if (!err)
             return res.status(200).json(doc);
         else
@@ -113,7 +153,7 @@ module.exports.deleteParking = (req, res, next) => {
     if (!ObjectId.isValid(req.params.id))
         return res.status(400).send('No Parking Status found with that id :' + req.params.id);
 
-    ParkingStatusOfSpots.findByIdAndDelete(req.params.id, (err, doc) => {
+    Parking.findByIdAndDelete(req.params.id, (err, doc) => {
         if (!err)
             return res.status(200).json(doc);
         else

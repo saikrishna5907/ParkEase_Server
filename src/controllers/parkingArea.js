@@ -1,6 +1,5 @@
 const ObjectId = require('mongoose').Types.ObjectId;
 const ParkingArea = require('../models/parkingArea');
-
 module.exports.getAllParkingAreas = async (req, res, next) =>{
     await ParkingArea.find((err, docs) => {
         if(err)

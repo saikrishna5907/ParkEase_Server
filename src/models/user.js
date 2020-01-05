@@ -1,24 +1,22 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
-const studentSchema = new Schema({
+const userSchema = new Schema({
     firstName: {
         type: String,
-        required: [true,'Student First Name is required']
+        required: [true,'user First Name is required']
     },
     lastName: {
         type: String,
-        required: [true,'Student Last Name is required']
-    },
-    studentId: {
-        type: String,
-        unique: true,
-        dropDups: true,
-        required: [true,'Student number is required']
+        required: [true,'user Last Name is required']
     },
     email: {
         type: String,
-        required: [true,'Student email is required'],
+        required: [true,'user email is required'],
         unique: true
+    },
+    password: {
+        type: String,
+        required: true
     },
     vehicleId:{
         type: String,
@@ -31,4 +29,4 @@ const studentSchema = new Schema({
         required: [true,'Contact Number is required']
     }
 });
-module.exports = mongoose.model('Student', studentSchema);
+module.exports = mongoose.model('User', userSchema);

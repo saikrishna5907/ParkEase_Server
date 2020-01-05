@@ -11,7 +11,12 @@ const parkingSpotSchema = new Schema({
         required:true
     },
     floorName:{
-        type:String
+        type:String,
+        required:true
+    },
+    spotNumber: {
+        type: Number,
+        required:true
     },
     allowedTime: {
         type: String,
